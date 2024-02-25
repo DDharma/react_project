@@ -21,12 +21,10 @@ const Steper = ({ stepData = [] }) => {
 
   useEffect(() => {
     setMargin({
-      ml: stepRef.current[0].offsetWidth/2,
-      mr: stepRef.current[3].offsetWidth/2,
+      ml: stepRef.current[0].offsetWidth / 2,
+      mr: stepRef.current[3].offsetWidth / 2,
     });
   }, [stepRef]);
-
-  console.log("current", manggin);
 
   return (
     <>
@@ -59,8 +57,8 @@ const Steper = ({ stepData = [] }) => {
         )}
         <div
           style={{
-            width:`calc(100% - (${manggin.ml + manggin.mr}px))`,
-            marginLeft:manggin.mr,
+            width: `calc(100% - (${manggin.ml + manggin.mr}px))`,
+            marginLeft: manggin.mr,
             // marginRight:manggin.mr
           }}
           className={`bg-gray-300 h-[5px] absolute top-[25%] left-0 z-[-1] `}
