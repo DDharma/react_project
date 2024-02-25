@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Steper from './_components/steper/Steper'
+import MultiselectSearch from './_components/multiselectSearch/MultiselectSearch'
 
 const steps = [
   {
@@ -27,6 +28,10 @@ export default function Home() {
         <div className='uppercase text-white text-[24px] font-bold'>complete your process</div>
       </div>
       <Steper stepData={steps}/>
+      <div className='h-[60px] bg-gray-400 flex justify-center items-center mb-[20px] mt-[50px]'>
+        <div className='uppercase text-white text-[24px] font-bold'>multiselect search</div>
+      </div>
+      <MultiselectSearch/>
     </>
   )
 }
