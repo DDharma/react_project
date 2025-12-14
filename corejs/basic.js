@@ -102,7 +102,8 @@ var v = 1000;
  
 
 
-//BLOCK SCOPE
+// SCOPE
+// Block Scope
 console.log("========== BLOCK SCOPE ==========")
 
 {
@@ -151,3 +152,34 @@ function closure () {
 
 var z = closure();
 z(); // -> its preserve the lexical context or closure 
+
+
+// Primitive variable or Data Types (value type)
+console.log("========== Private variable or Data Types ==========")
+let prestr = 'Hello All'; // -> its Primitive variable string
+let prex = 250; // -> its Primitive variable number
+let prey; // -> its give undefined
+let prez = null; // -> its give null
+let prea = true; // -> its give boolean
+let prebigNum = 123422222222222222222222222222222222222n // -> its give bigInt
+let presym = Symbol("Hello") // -> its give symbol
+console.log(prestr,prex,prey,prez,prea,prebigNum,presym)
+
+// Non Primitive variable or Data Types (reference type)
+console.log("========== Non Primitive variable or Data Types ==========")
+let npriobj = new Object(); // -> its give object
+let npria = new Array(); // -> its give array
+
+
+// Implicit,Explicit,Nominal,Structural and Duck Typing
+console.log("========== Implicit,Explicit,Nominal,Structural and Duck Typing ==========")
+// js automatically convert the type of variable when needed its call implicit type conversion
+// if we convert the type of variable manually its call explicit type conversion
+
+// truthy value in js -> 123, 'hello', true, [1,2,3], {a:1}, function() {}
+// falsy value in js -> 0, '', null, undefined, NaN, false
+
+var value = true + null + 4;
+console.log("type conversion",value) // -> its give 5;
+
+
