@@ -1,4 +1,5 @@
-import React, { use } from "react";
+"use client";
+import React, { useState } from "react";
 
 const TabsPage = () => {
   const [data, setData] = useState({
