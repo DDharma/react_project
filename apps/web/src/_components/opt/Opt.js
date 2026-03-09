@@ -6,9 +6,11 @@ export function Opt() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
-  const accountSid = "REDACTED_SID";
-  const authToken = "REDACTED_TOKEN";
-  const twilioWhatsAppNumber = "whatsapp:+918700879448"; // e.g. +1415XXXXXXX
+  // Set these in .env.local:
+  // NEXT_PUBLIC_TWILIO_SID, NEXT_PUBLIC_TWILIO_TOKEN, NEXT_PUBLIC_TWILIO_WHATSAPP
+  const accountSid = process.env.NEXT_PUBLIC_TWILIO_SID || "";
+  const authToken = process.env.NEXT_PUBLIC_TWILIO_TOKEN || "";
+  const twilioWhatsAppNumber = process.env.NEXT_PUBLIC_TWILIO_WHATSAPP || "";
 
   // Basic auth header
   const authHeader = "Basic " + btoa(accountSid + ":" + authToken);
