@@ -14,6 +14,9 @@ const routes = [
     { name: 'Voting', href: '/voting' },
     { name: 'Voting Queue', href: '/voting-queue' },
     { name: 'Test 1', href: '/test1' },
+    { name: 'Throttle', href: '/throttle' },
+    { name: 'Data Table', href: '/data-table' },
+
   ]},
   { section: 'Filesystem', items: [
     { name: 'Folder Tree', href: '/folder-tree' },
