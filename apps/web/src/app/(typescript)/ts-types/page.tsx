@@ -1,3 +1,5 @@
+import { log } from "console"
+
 export default function Home() {
 
   //creating type
@@ -30,11 +32,17 @@ export default function Home() {
   // myUser._id = "hello@gmail1.com"  gives error _id is read only
   console.log(myUser)
 
+  // Generics
+  function identity<R>(arg: R): R {
+    return (arg);
+  }
+
+  log(identity<Number>(3)) // Output: Hello Generics!
+
+
   const variable: string = "hello world"
   console.log(variable)
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div></div>
-    </main>
+    <div className="bg-black min-h-screen flex flex-col items-center p-10 text-white"></div>
   )
 }

@@ -26,9 +26,6 @@ const page = () => {
     fetchPost();
   }, [pageNumber]);
 
-  const handleScroll = () => {
-    setPageNumber((prev) => prev + 1);
-  };
 
   const cards = useMemo(
     () =>

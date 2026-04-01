@@ -16,6 +16,7 @@ const routes = [
     { name: 'Test 1', href: '/test1' },
     { name: 'Throttle', href: '/throttle' },
     { name: 'Data Table', href: '/data-table' },
+    { name: 'Drag And Drop', href: '/drag-and-drop' },
 
   ]},
   { section: 'Filesystem', items: [
@@ -28,6 +29,9 @@ const routes = [
   ]},
   { section: 'TypeScript', items: [
     { name: 'TS Types', href: '/ts-types' },
+  ]},
+   { section: 'React 19+', items: [
+    { name: 'React 19', href: '/react-19' },
   ]},
 ]
 
