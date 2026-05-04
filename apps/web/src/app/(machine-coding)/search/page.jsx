@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 //   const [search, setSearch] = useState("");
 //   const [searchResult, setSearchResult] = useState([]);
 
@@ -91,6 +91,8 @@ const SearchAutocomplete = () => {
   const [activeIndex, setActiveIndex] = useState(3);
   const [activeCounter, setActiveCounter] = useState(0);
 
+  const dropdownRef = useRef();
+
   const handleChange = (e) => {
     setSearch(e.target.value);
   };
@@ -177,7 +179,17 @@ const SearchAutocomplete = () => {
     };
   }, [searchResult.length, selected]); // Update dependencies if these values change
 
-  console.log("searchResult", searchResult, activeIndex, selected);
+  useEffect(() => {
+    if (activeIndex === -1) return; // No active item
+
+    const activeItem = dropdownRef.current?.children[activeIndex];
+    if (activeItem) {
+      activeItem.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [activeIndex]);
 
   return (
     <div className="flex flex-col items-center bg-[#0b1221] min-h-screen w-full p-8 gap-2">
@@ -197,13 +209,15 @@ const SearchAutocomplete = () => {
         />
       </div>
       {searchResult.length > 0 && (
-        <div className="w-80 text-black h-fit bg-white rounded px-2 py-2 max-h-60 overflow-y-auto">
+        <div
+          ref={dropdownRef}
+          className="w-80 text-black h-fit bg-white rounded px-2 py-2 max-h-60 overflow-y-auto"
+        >
           {searchResult.map((d, idx) => {
-            console.log("activeIndex", activeIndex, d.id);
             return (
               <div
                 onClick={() => handleSelect(d)}
-                className={`text-8 my-2 py-1 px-2 ${
+                className={` text-8 my-2 py-1 px-2 ${
                   selected.id == d.id || activeIndex == idx
                     ? "bg-cyan-300 text-black rounded-md"
                     : "bg-gray-200" // Move it here
