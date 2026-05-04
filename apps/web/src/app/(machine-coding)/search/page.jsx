@@ -1,7 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-
-// const page = () => {
 //   const [search, setSearch] = useState("");
 //   const [searchResult, setSearchResult] = useState([]);
 
@@ -90,7 +88,8 @@ const SearchAutocomplete = () => {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [selected, setSelected] = useState({});
-  const [activeIndex, setActiveIndex] = useState(-1);
+  const [activeIndex, setActiveIndex] = useState(3);
+  const [activeCounter, setActiveCounter] = useState(0);
 
   const handleChange = (e) => {
     setSearch(e.target.value);
@@ -101,6 +100,7 @@ const SearchAutocomplete = () => {
   };
 
   const handleSearch = async (search) => {
+    setActiveIndex(-1);
     fetch(
       `https://dummyjson.com/posts/search?q=${search}&limit=${limit}&page=${page}`,
     ).then((res) => {
@@ -138,33 +138,46 @@ const SearchAutocomplete = () => {
   };
 
   useEffect(() => {
-    document.addEventListener("keydown", (e) => {
+    const handleKeyDown = (e) => {
+      if (searchResult.length === 0) return;
+
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        if (activeIndex === searchResult.length - 1) {
-          setActiveIndex(searchResult[0].id);
-        } else {
-          
-        }
-        setActiveIndex((prev) => {});
+        setActiveIndex((prev) => {
+          // If nothing is selected (-1) or we are at the end, go to 0
+          if (prev === -1 || prev === searchResult.length - 1) return 0;
+          return prev + 1;
+        });
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setActiveIndex((prev) => {
-          const nextIndex = prev - 1;
-          return nextIndex < 0 ? searchResult.length - 1 : nextIndex;
+          // If nothing is selected or we are at the start, go to the last item
+          if (prev <= 0) return searchResult.length - 1;
+          return prev - 1;
         });
-      } else if (e.key === "Enter" && selected.id) {
+      } else if (e.key === "Enter") {
         e.preventDefault();
-        handleSelect(selected);
+        // Use activeIndex to select the correct item from the list
+        if (activeIndex >= 0 && activeIndex < searchResult.length) {
+          handleSelect(searchResult[activeIndex]);
+        }
       } else if (e.key === "Escape") {
         e.preventDefault();
-        setSelected({});
+        setActiveIndex(-1);
+        // Optional: close the dropdown here
       }
-      return () => {
-        document.removeEventListener("keydown", () => {});
-      };
-    });
-  }, [activeIndex]);
+    };
+
+    // 2. Attach the listener
+    document.addEventListener("keydown", handleKeyDown);
+
+    // 3. Clean up correctly by passing the same function reference
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [searchResult.length, selected]); // Update dependencies if these values change
+
+  console.log("searchResult", searchResult, activeIndex, selected);
 
   return (
     <div className="flex flex-col items-center bg-[#0b1221] min-h-screen w-full p-8 gap-2">
@@ -186,10 +199,15 @@ const SearchAutocomplete = () => {
       {searchResult.length > 0 && (
         <div className="w-80 text-black h-fit bg-white rounded px-2 py-2 max-h-60 overflow-y-auto">
           {searchResult.map((d, idx) => {
+            console.log("activeIndex", activeIndex, d.id);
             return (
               <div
                 onClick={() => handleSelect(d)}
-                className={`text-8 my-2 py-1 bg-gray-200 px-2 ${selected.id || activeIndex === d.id ? "bg-cyan-300 text-black rounded-md" : ""}`}
+                className={`text-8 my-2 py-1 px-2 ${
+                  selected.id == d.id || activeIndex == idx
+                    ? "bg-cyan-300 text-black rounded-md"
+                    : "bg-gray-200" // Move it here
+                }`}
                 key={d.id}
               >
                 {highlightMatch(d.title, search)}
