@@ -1,85 +1,5 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-//   const [search, setSearch] = useState("");
-//   const [searchResult, setSearchResult] = useState([]);
-
-//   const handleChange = (e) => {
-//     setSearch(e.target.value);
-//   };
-
-//   const handleSearch = async () => {
-//     fetch(`https://dummyjson.com/posts/search?q=${search}&limit=5`).then(
-//       (res) => {
-//         res.json().then((data) => {
-//           setSearchResult(data.posts);
-//         });
-//       }
-//     );
-//   };
-
-//   useEffect(() => {
-//     if (search.length === 0) {
-//       setSearchResult([]);
-//       return;
-//     }
-
-//     const timeOut = setTimeout(() => {
-//       handleSearch();
-//     }, 500);
-
-//     return () => clearTimeout(timeOut);
-//   }, [search]);
-
-//   function highlightMatch(text, query) {
-//     if (!query) return text;
-
-//     const regex = new RegExp(`(${query})`, "ig"); // case-insensitive
-//     const parts = text.split(regex); // split keeps matched parts
-
-//     return parts.map((part, index) =>
-//       part.toLowerCase() === query.toLowerCase() ? (
-//         <strong key={index}>{part}</strong>
-//       ) : (
-//         <span key={index}>{part}</span>
-//       )
-//     );
-//   }
-
-//   return (
-//     <div className="flex flex-col items-center bg-[#0b1221] min-h-screen w-full p-8 gap-10">
-//       <div className="text-center space-y-1">
-//         <p className="text-sm uppercase tracking-[0.3em] text-cyan-300/80">
-//           Search Auto-Complete
-//         </p>
-//         <p className="text-white/70 text-sm"></p>
-//       </div>
-//       <div className="w-full max-w-md flex flex-col items-center justify-center gap-2">
-//         <input
-//           className="h-10 w-80 bg-white text-black px-2 py-2 rounded"
-//           type="text"
-//           value={search}
-//           onChange={handleChange}
-//           placeholder="Search"
-//         />
-//         {searchResult.length > 0 && (
-//           <div className="w-80 text-black h-fit bg-white rounded px-2 py-2">
-//             {searchResult.map((d, idx) => {
-//               return (
-//                 <div className="text-8" key={idx}>
-//                   {highlightMatch(d.title, search)}
-//                 </div>
-//               );
-//             })}
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default page;
-
-// Basic Search with 300ml debounce
 
 const limit = 20;
 const page = 3;
@@ -91,6 +11,10 @@ const SearchAutocomplete = () => {
   const [activeIndex, setActiveIndex] = useState(3);
   const [activeCounter, setActiveCounter] = useState(0);
 
+  const [recentlySearched, setRecentlySearched] = useState([]);
+  const [inputFocused, setInputFocused] = useState(false);
+  const [dataCashed, setDataCached] = useState({});
+
   const dropdownRef = useRef();
 
   const handleChange = (e) => {
@@ -101,29 +25,45 @@ const SearchAutocomplete = () => {
     setSelected(item);
   };
 
-  const handleSearch = async (search) => {
+  const handleSearch = async (search, signal) => {
     setActiveIndex(-1);
     fetch(
       `https://dummyjson.com/posts/search?q=${search}&limit=${limit}&page=${page}`,
+      { signal },
     ).then((res) => {
       setSearchResult([]);
       res.json().then((data) => {
         setSearchResult(data.posts);
         handleSelect({});
+        setRecentlySearched((prev) => {
+          const newList = [search, ...prev?.filter((s) => s !== search)];
+          return newList.slice(0, 5);
+        });
+        setDataCached((prev) => ({
+          ...prev,
+          [search]: data.posts,
+        }));
       });
     });
   };
 
   useEffect(() => {
+    const controller = new AbortController();
     if (search.length === 0) {
       setSearchResult([]);
       handleSelect({});
       return;
     }
     const timeOut = setTimeout(() => {
-      handleSearch(search);
+      if (dataCashed[search]) {
+        setSearchResult(dataCashed[search]);
+        return;
+      }
+      handleSearch(search, controller.signal);
     }, 300);
-    return () => clearTimeout(timeOut);
+    return () => {
+      (clearTimeout(timeOut), controller.abort());
+    };
   }, [search]);
 
   const highlightMatch = (text, query) => {
@@ -167,17 +107,15 @@ const SearchAutocomplete = () => {
         e.preventDefault();
         setActiveIndex(-1);
         // Optional: close the dropdown here
+        setSearchResult(activeCounter);
       }
     };
 
-    // 2. Attach the listener
     document.addEventListener("keydown", handleKeyDown);
-
-    // 3. Clean up correctly by passing the same function reference
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [searchResult.length, selected]); // Update dependencies if these values change
+  }, [searchResult.length, selected]);
 
   useEffect(() => {
     if (activeIndex === -1) return; // No active item
@@ -206,9 +144,11 @@ const SearchAutocomplete = () => {
           value={search}
           onChange={handleChange}
           placeholder="Search"
+          onFocus={() => setInputFocused(true)}
+          onBlur={() => setInputFocused(false)}
         />
       </div>
-      {searchResult.length > 0 && (
+      {searchResult.length > 0 ? (
         <div
           ref={dropdownRef}
           className="w-80 text-black h-fit bg-white rounded px-2 py-2 max-h-60 overflow-y-auto"
@@ -229,7 +169,24 @@ const SearchAutocomplete = () => {
             );
           })}
         </div>
+      ) : (
+        recentlySearched.length > 0 &&
+        inputFocused && (
+          <div className="w-80 text-black h-fit bg-white rounded px-2 py-2 max-h-60 overflow-y-auto mt-0">
+            <p className="text-sm text-gray-500 mb-2">Recently Searched:</p>
+            {recentlySearched.map((s, idx) => (
+              <div
+                onClick={() => handleSearch(s)}
+                className="text-8 my-2 py-1 px-2 bg-gray-200"
+                key={idx}
+              >
+                {s}
+              </div>
+            ))}
+          </div>
+        )
       )}
+
       {selected.id && (
         <div className="w-[800px] text-black h-fit bg-white rounded px-2 py-2 max-h-60 overflow-y-auto mt-10">
           <div className="text-8 my-2 py-1 bg-gray-200 px-2" key={selected.id}>
